@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Form, Row, Col } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { register } from "../actions/userActions";
+import Loader from "../components/Loader";
 
 import FormContainer from "../components/FormContainer";
 
@@ -36,53 +37,59 @@ function RegisterScreen() {
 
   let navigate = useNavigate();
   const dispatch = useDispatch();
+  // useEffect(() => {
+  //   if (userInfo || userLoginUserInfo) {
+  //     navigate(redirect);
+  //   }
+  // }, [navigate, userInfo, redirect]);
+
   useEffect(() => {
-    if (userInfo || userLoginUserInfo) {
-      navigate(redirect);
+    if (userInfo) {
+      navigate('/verify-otp');
     }
-  }, [navigate, userInfo, redirect]);
+  }, [navigate, userInfo]);
 
-  const submitHandler = (e) => {
-    e.preventDefault();
-    try {
-      dispatch(register(username, email, password));
-      if (password !== confirmPassword) {
-        setMessage("Passwords do not match");
-      }
-      if (error) {
-        setMessage(error.detail);
-        console.log("may error", error.detail);
-      }
-      if (password === confirmPassword && !error) {
-        navigate("/verify-otp");
-      }
-    } catch (error) {
-      setMessage(error.detail);
+  // const submitHandler = (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     dispatch(register(username, email, password));
+  //     if (password !== confirmPassword) {
+  //       setMessage("Passwords do not match");
+  //     }
+  //     if (error) {
+  //       setMessage(error.detail);
+  //       console.log("may error", error.detail);
+  //     }
+  //     if (password === confirmPassword && !error) {
+  //       navigate("/verify-otp");
+  //     }
+  //   } catch (error) {
+  //     setMessage(error.detail);
+  //   }
+  // };
+
+  const submitHandler = async (e) => {
+  e.preventDefault();
+
+  try {
+    const response = await dispatch(register(username, email, password));
+    console.log('Register Response:', response);
+
+    // Check if there is an error message in the response
+    if (response && response.message && response.message !== 'User created successfully') {
+      console.error('Registration failed:', response.message);
+      // Handle unsuccessful registration, e.g., display an error message
+    } else {
+      // Registration was successful
+      console.log('Registration successful');
+      const { user_id, otp_id } = response;
+      navigate(`/verify-otp?user_id=${user_id}&otp_id=${otp_id}`);
     }
-  };
-
-//   const submitHandler = async (e) => {
-//   e.preventDefault();
-
-//   try {
-//     const response = await dispatch(register(username, email, password));
-//     console.log('Register Response:', response);
-
-//     // Check if there is an error message in the response
-//     if (response && response.message && response.message !== 'User created successfully') {
-//       console.error('Registration failed:', response.message);
-//       // Handle unsuccessful registration, e.g., display an error message
-//     } else {
-//       // Registration was successful
-//       console.log('Registration successful');
-//       const { user_id, otp_id } = response;
-//       navigate(`/verify-otp?user_id=${user_id}&otp_id=${otp_id}`);
-//     }
-//   } catch (error) {
-//     console.error('Error during registration:', error.message);
-//     // Handle other errors, e.g., display a generic error message
-//   }
-// };
+  } catch (error) {
+    console.error('Error during registration:', error.message);
+    // Handle other errors, e.g., display a generic error message
+  }
+};
   return (
     <FormContainer>
       {loading ? (

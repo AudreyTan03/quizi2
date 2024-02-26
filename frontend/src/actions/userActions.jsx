@@ -45,9 +45,9 @@ import {
     }
 };
 
-export const VerifyOtp = (user_id, otp_id, otp) => async (dispatch) => {
+export const VerifyOtp = (user_id, otp_id, otp_code) => async (dispatch) => {
   try {
-    console.log(user_id, otp_id, otp)
+    console.log(user_id, otp_id, otp_code)
     dispatch({
       type: USER_VERIFY_OTP_REQUEST
     });
@@ -59,7 +59,7 @@ export const VerifyOtp = (user_id, otp_id, otp) => async (dispatch) => {
 
     const { data } = await axios.post(
       "api/verify-otp/",
-      {user_id: user_id, otp_id: otp_id, otp: otp}, // Added comma here
+      {user_id: user_id, otp_id: otp_id, otp_code: otp_code}, // Added comma here
       config
     )
     dispatch({

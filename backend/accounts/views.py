@@ -7,10 +7,10 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from django.contrib.auth.models import User
 import pyotp
-from django.core.mail import send_mail
 from accounts.models import OTP
 from accounts.serializers import *
 from django.conf import settings
+from django.core.mail import send_mail
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -55,8 +55,7 @@ def registerUser(request):
             user=user,
             otp_secret=otp_key
         )
-        # send_otp_email(data["email"], otp_code)
-
+        send_otp_email(data["email"], otp_code)
         serializer = UserSerializerWithToken(user, many=False)
         
         response_data = {
