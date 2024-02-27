@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react'; // Import useRef
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { VerifyOtp } from '../actions/userActions';
@@ -10,6 +10,7 @@ function OTPVerification() {
     const location = useLocation();
     const [otp, setOtp] = useState('');
     const [error, setError] = useState('');
+    const inputRefs = useRef([]); // Define inputRefs using useRef
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -36,20 +37,41 @@ function OTPVerification() {
             setError(error.message);
         }
     };
-    
+
+    const handleChange = (value, index) => {
+        setOtp((prevOtp) => {
+            const updatedOtp = prevOtp.substring(0, index) + value + prevOtp.substring(index + 1);
+            if (value && inputRefs.current[index + 1]) {
+                inputRefs.current[index + 1].focus();
+            } else if (!value && inputRefs.current[index - 1]) {
+                inputRefs.current[index - 1].focus();
+            }
+            return updatedOtp;
+        });
+    };
+
     return (
         <div>
             <h1>OTP Verification</h1>
             <p>Enter OTP</p>
             <form onSubmit={handleSubmit}>
-                <input 
-                    type="text" 
-                    value={otp} 
-                    onChange={(e) => setOtp(e.target.value)} 
-                />
-                <button type="submit">Submit</button>
+                <div className="otp-container">
+                    {[...Array(6)].map((_, index) => (
+                        <input
+                            key={index}
+                            type="number"
+                            value={otp[index] || ''}
+                            onChange={(e) => handleChange(e.target.value, index)}
+                            maxLength="1"
+                            ref={(el) => (inputRefs.current[index] = el)}
+                            className="otp-input"
+                        />
+                    ))}
+                </div>
+                <button type="submit" disabled={otp.length !== 6}>
+                    Submit
+                </button>
             </form>
-            {error && <p>{error}</p>} {/* Display error message if there's any */}
         </div>
     );
 }

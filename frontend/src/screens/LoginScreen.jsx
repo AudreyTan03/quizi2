@@ -186,7 +186,7 @@ function LoginScreen() {
               <Grid item xs>
                 <Typography
                   component={Link}
-                  to="/auth/reset-password"
+                  to="/request-changepass/"  // Updated link to redirect to "/request-changepass/"
                   sx={{ color: "white" }}
                 >
                   Forgot Password?

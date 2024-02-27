@@ -224,6 +224,16 @@ function Header() {
                     onClose={handleCloseUserMenu}
                   >
                     <MenuItem onClick={handleCloseUserMenu}>
+                      <Typography 
+                      component={Link}
+                      to= "profile/"
+                      textAlign={"center"}
+                      sx={{color:"inherit", textDecoration:"none"}}>
+                          Profile
+                      </Typography>
+                    </MenuItem>
+                    
+                    <MenuItem onClick={handleCloseUserMenu}>
                       <Typography
                         sx={{ color: "inherit", textDecoration: "none" }}
                         // component={Link}

@@ -10,6 +10,12 @@ import {
     USER_VERIFY_OTP_REQUEST,
     USER_VERIFY_OTP_SUCCESS,
     USER_VERIFY_OTP_FAIL,
+    USER_SEND_CHANGE_PASSWORD_REQUEST,
+    USER_SEND_CHANGE_PASSWORD_SUCCESS,
+    USER_SEND_CHANGE_PASSWORD_FAIL,
+    USER_CONFIRM_CHANGE_PASSWORD_REQUEST,
+    USER_CONFIRM_CHANGE_PASSWORD_SUCCESS,
+    USER_CONFIRM_CHANGE_PASSWORD_FAIL,
   } from "../constants/userConstants";
   export const register = (username, email, password) => async (dispatch) => {
     try {
@@ -116,6 +122,60 @@ export const VerifyOtp = (user_id, otp_id, otp_code) => async (dispatch) => {
     localStorage.removeItem("userInfo");
     dispatch({ type: USER_LOGOUT });
   };
+
+  export const sendChangepassword = (password, password2, token) => async (dispatch) => {
+    try {
+        dispatch({ type: USER_SEND_CHANGE_PASSWORD_REQUEST });
+        const config = {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        };
+        const { data } = await axios.post(
+            'http://127.0.0.1:8000/api/changepassword/',
+            { password, password2 },
+            config
+        );
+        dispatch({
+            type: USER_SEND_CHANGE_PASSWORD_SUCCESS,
+            payload: data,
+        });
+    } catch (error) {
+        dispatch({
+            type: USER_SEND_CHANGE_PASSWORD_FAIL,
+            payload: error.response && error.response.data.details
+                ? error.response.data.details
+                : error.message,
+        });
+    }
+};
+
+export const confirmChangepassword = (password, password2, uid, token) => async (dispatch) => {
+    try {
+        dispatch({ type: USER_CONFIRM_CHANGE_PASSWORD_REQUEST });
+        const config = {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        };
+        const { data } = await axios.post(
+            `http://127.0.0.1:8000/api/reset-password/${uid}/${token}`,
+            { password, password2 },
+            config
+        );
+        dispatch({
+            type: USER_CONFIRM_CHANGE_PASSWORD_SUCCESS,
+            payload: data,
+        });
+    } catch (error) {
+        dispatch({
+            type: USER_CONFIRM_CHANGE_PASSWORD_FAIL,
+            payload: error.response && error.response.data.details
+                ? error.response.data.details
+                : error.message,
+        });
+    }
+};
   
   // export const register = (name, email, password) => async (dispatch) => {
   //   try {

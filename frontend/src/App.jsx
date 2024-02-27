@@ -10,6 +10,8 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ProfileScreen from "./screens/ProfileScreen";
 import OTPVerification from "./screens/OTPVerification";
+import ConfirmChangepass from "./screens/ConfirmChangepass";
+import RequestChangepass from "./screens/RequestChangepass";
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
               <Route path='register/' element={<RegisterScreen />} />
               <Route path='profile/' element={<ProfileScreen />} />
               <Route path= 'verify-otp/' element={<OTPVerification />} />
+              <Route path='request-changepass/' element={<RequestChangepass />} />
+              <Route path='/confirm-changepass/:uid/:token' element={<ConfirmChangepass />} />
             </Routes>
           </Container>
         </main>

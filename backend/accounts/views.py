@@ -11,6 +11,16 @@ from accounts.models import OTP
 from accounts.serializers import *
 from django.conf import settings
 from django.core.mail import send_mail
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework import permissions, status
+from rest_framework.decorators import api_view, permission_classes
+from accounts.serializers import SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserPasswordResetSerializer,UserProfileSerializer
+from django.contrib.auth import authenticate
+from rest_framework.exceptions import ValidationError
+from rest_framework.views import APIView
+from accounts.renderers import UserRenderer
+from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -104,3 +114,43 @@ def send_otp_email(email, otp_code):
     email_from = settings.EMAIL_HOST_USER
     recipient_list = [email]
     send_mail(subject, message, email_from, recipient_list)
+
+class UserProfileView(APIView):
+    renderer_classes = [UserRenderer]
+    # permission_classes = [IsAuthenticated]
+    def get(self, request, format=None):
+        serializer= UserProfileSerializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+
+
+class UserChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]  # Ensure only authenticated users can access
+    authentication_classes = [JWTAuthentication]
+
+    def post(self, request, format=None):
+        serializer = UserChangePasswordSerializer(data=request.data, context={'user': request.user})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'msg': 'Password changed successfully'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    
+class SendPasswordResetEmailView(APIView):
+    renderer_classes = [UserRenderer]
+    permission_classes = [AllowAny]
+    def post(self, request, format=None):
+        serializer = SendPasswordResetEmailSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            return Response({'msg': 'Password Reset link send. Please check your Email'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class UserPasswordResetView(APIView):
+    renderer_classes = [UserRenderer]
+    permission_classes = [AllowAny]
+    def post(self,request, uid, token , format=None):
+        serializer = UserPasswordResetSerializer(data=request.data, context = {'uid':uid, 'token': token})
+        if serializer.is_valid(raise_exception=True):
+            return Response({'msg':"Password Reset Succesfully"}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
